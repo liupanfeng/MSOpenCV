@@ -30,13 +30,13 @@
         android:onClick="recognition"/>
 
     <ImageView
-        android:id="@+id/idcard"
+        android:id="@+id/iv_card_view"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:layout_gravity="center"
         />
     <TextView
-        android:id="@+id/tesstext"
+        android:id="@+id/tv_card_number_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

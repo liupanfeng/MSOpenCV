@@ -21,22 +21,45 @@ extern "C" {
 
 using namespace cv;
 using namespace std;
+/**
+ * 工具方法 bitmap 转 mat2
+ * @param env
+ * @param bitmap
+ * @param m_addr
+ * @param needUnPremultiplyAlpha
+ */
 extern JNIEXPORT void JNICALL Java_org_opencv_android_Utils_nBitmapToMat2
         (JNIEnv *env, jclass, jobject bitmap, jlong m_addr, jboolean needUnPremultiplyAlpha);
+/**
+ * 工具方法 Mat 转bitmap
+ * @param env
+ * @param m_addr
+ * @param bitmap
+ */
 extern JNIEXPORT void JNICALL Java_org_opencv_android_Utils_nMatToBitmap
         (JNIEnv *env, jclass, jlong m_addr, jobject bitmap);
 
-
+/**
+ * 将Mat 数据转给Bitmap 返回bitmap对象
+ * @param env
+ * @param srcData
+ * @param config
+ * @return
+ */
 jobject createBitmap(JNIEnv *env, Mat srcData, jobject config) {
-    // Image Details
+    /*图片信息*/
     int imgWidth = srcData.cols;
     int imgHeight = srcData.rows;
     int numPix = imgWidth * imgHeight;
+
+    /*反射拿到Bitmap*/
     jclass bmpCls = env->FindClass("android/graphics/Bitmap");
     jmethodID createBitmapMid = env->GetStaticMethodID(bmpCls, "createBitmap",
                                                        "(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;");
+    /*执行静态方法 得到Bitmap对象*/
     jobject jBmpObj = env->CallStaticObjectMethod(bmpCls, createBitmapMid, imgWidth, imgHeight,
                                                   config);
+    /*将mat 数据传给Bitmap*/
     Java_org_opencv_android_Utils_nMatToBitmap(env, 0, (jlong) &srcData, jBmpObj);
 //    mat2Bitmap(env, srcData, jBmpObj);
     return jBmpObj;
@@ -82,7 +105,7 @@ Java_com_meishe_msopencv_ImageProcess_getIdNumber(JNIEnv *env, jclass clazz, job
     erode(dst, dst, erodeElement);
     //imshow("erode", dst);
 
-    ////轮廓检测 // arraylist
+    //轮廓检测 // arraylist
     vector< vector<Point> > contours;
     vector<Rect> rects;
 

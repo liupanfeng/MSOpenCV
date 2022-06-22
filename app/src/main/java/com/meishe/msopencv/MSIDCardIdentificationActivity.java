@@ -2,13 +2,11 @@ package com.meishe.msopencv;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -17,81 +15,52 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
+import com.meishe.msopencv.utils.PathUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+
 public class MSIDCardIdentificationActivity extends AppCompatActivity {
 
     private final static String TAG = MSIDCardIdentificationActivity.class.getSimpleName();
-    private TessBaseAPI baseApi;
-    private String language = "cn";
-    private TextView tesstext;
-    private ImageView idCard;
-    private ProgressDialog progressDialog;
-    private Bitmap ResultImage;
-    private Bitmap fullImage;
-
-
-    private void showProgress() {
-        if (null != progressDialog) {
-            progressDialog.show();
-        } else {
-            progressDialog = new ProgressDialog(this);
-            progressDialog.setMessage("请稍候...");
-            progressDialog.setIndeterminate(true);
-            progressDialog.setCancelable(false);
-            progressDialog.show();
-        }
-    }
-
-
-    private void dismissProgress() {
-        if (null != progressDialog) {
-            progressDialog.dismiss();
-        }
-    }
-
+    private TessBaseAPI mBaseApi;
+    private String mLanguage = "cn";
+    private TextView mTvCardNumberView;
+    private ImageView mIvCardView;
+    private Bitmap mResultImage;
+    private Bitmap mFullImage;
+    private Disposable mSubscribe;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_msidcard_identification);
 
-        idCard = (ImageView) findViewById(R.id.idcard);
-        tesstext = (TextView) findViewById(R.id.tesstext);
+        mIvCardView = (ImageView) findViewById(R.id.iv_card_view);
+        mTvCardNumberView = (TextView) findViewById(R.id.tv_card_number_view);
         initTess();
     }
 
 
     private void initTess() {
-        new AsyncTask<Void, Void, Boolean>() {
+         mSubscribe = Observable.just(1).observeOn(Schedulers.io()).subscribe(new Consumer<Integer>() {
             @Override
-            protected void onPreExecute() {
-                showProgress();
-            }
-
-            @Override
-            protected void onPostExecute(Boolean result) {
-                if (result==null||result) {
-                    dismissProgress();
-                } else {
-                    Toast.makeText(MSIDCardIdentificationActivity.this, "load trainedData failed", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            protected Boolean doInBackground(Void... params) {
-                baseApi = new TessBaseAPI();
+            public void accept(Integer integer) throws Exception {
+                Log.e("lpf","----doInBackground---");
+                mBaseApi = new TessBaseAPI();
                 try {
                     InputStream is = null;
-                    is = getAssets().open(language + ".traineddata");
-                    File file = new File("/sdcard/tess/tessdata/" + language + ".traineddata");
+                    is = getAssets().open(mLanguage + ".traineddata");
+                    File file = new File(PathUtils.getTessDir()+File.separator + mLanguage + ".traineddata");
                     if (!file.exists()) {
                         file.getParentFile().mkdirs();
                         FileOutputStream fos = new FileOutputStream(file);
@@ -103,13 +72,14 @@ public class MSIDCardIdentificationActivity extends AppCompatActivity {
                         fos.close();
                     }
                     is.close();
-                    return baseApi.init("/sdcard/tess", language);
+                    PathUtils.getTessDir();
+                    mBaseApi.init(PathUtils.getRootDir(), mLanguage);
                 } catch (IOException e) {
                     e.printStackTrace();
+                    Log.e("lpf","----copy error:"+e.getMessage());
                 }
-                return null;
             }
-        }.execute();
+        });
     }
 
     /**
@@ -132,20 +102,20 @@ public class MSIDCardIdentificationActivity extends AppCompatActivity {
 
 
     public void searchId(View view) {
-        tesstext.setText(null);
-        ResultImage = null;
-        Bitmap bitmapResult = ImageProcess.getIdNumber(fullImage, Bitmap.Config.ARGB_8888);
-        fullImage.recycle();
-        ResultImage = bitmapResult;
+        mTvCardNumberView.setText(null);
+        mResultImage = null;
+        Bitmap bitmapResult = ImageProcess.getIdNumber(mFullImage, Bitmap.Config.ARGB_8888);
+        mFullImage.recycle();
+        mResultImage = bitmapResult;
         //tesseract-ocr
-        idCard.setImageBitmap(bitmapResult);
+        mIvCardView.setImageBitmap(bitmapResult);
     }
 
     public void recognition(View view) {
         // 识别Bitmap中的图片
-        baseApi.setImage(ResultImage);
-        tesstext.setText(baseApi.getUTF8Text());
-        baseApi.clear();
+        mBaseApi.setImage(mResultImage);
+        mTvCardNumberView.setText(mBaseApi.getUTF8Text());
+        mBaseApi.clear();
     }
 
     private void getResult(Uri uri) {
@@ -171,12 +141,12 @@ public class MSIDCardIdentificationActivity extends AppCompatActivity {
             }
         }
         if (!TextUtils.isEmpty(imagePath)) {
-            if (fullImage != null) {
-                fullImage.recycle();
+            if (mFullImage != null) {
+                mFullImage.recycle();
             }
-            fullImage = toBitmap(imagePath);
-            tesstext.setText(null);
-            idCard.setImageBitmap(fullImage);
+            mFullImage = toBitmap(imagePath);
+            mTvCardNumberView.setText(null);
+            mIvCardView.setImageBitmap(mFullImage);
         }
     }
 
@@ -189,8 +159,9 @@ public class MSIDCardIdentificationActivity extends AppCompatActivity {
     }
 
     public static Bitmap toBitmap(String pathName) {
-        if (TextUtils.isEmpty(pathName))
+        if (TextUtils.isEmpty(pathName)){
             return null;
+        }
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(pathName, o);
@@ -214,7 +185,11 @@ public class MSIDCardIdentificationActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        dismissProgress();
-        baseApi.end();
+        if (mBaseApi !=null){
+            mBaseApi.end();
+        }
+        if (mSubscribe!=null){
+            mSubscribe.dispose();
+        }
     }
 }

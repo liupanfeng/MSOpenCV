@@ -1,0 +1,1 @@
+1.MSIDCardIdentificationActivity 实现了身份证识别的功能
