@@ -32,7 +32,7 @@ import io.reactivex.schedulers.Schedulers;
 public class MSIDCardIdentificationActivity extends AppCompatActivity {
 
     private final static String TAG = MSIDCardIdentificationActivity.class.getSimpleName();
-    private TessBaseAPI mBaseApi;
+    private TessBaseAPI mTessBaseAPI;
     private String mLanguage = "cn";
     private TextView mTvCardNumberView;
     private ImageView mIvCardView;
@@ -56,7 +56,7 @@ public class MSIDCardIdentificationActivity extends AppCompatActivity {
             @Override
             public void accept(Integer integer) throws Exception {
                 Log.e("lpf","----doInBackground---");
-                mBaseApi = new TessBaseAPI();
+                mTessBaseAPI = new TessBaseAPI();
                 try {
                     InputStream is = null;
                     is = getAssets().open(mLanguage + ".traineddata");
@@ -73,7 +73,7 @@ public class MSIDCardIdentificationActivity extends AppCompatActivity {
                     }
                     is.close();
                     PathUtils.getTessDir();
-                    mBaseApi.init(PathUtils.getRootDir(), mLanguage);
+                    mTessBaseAPI.init(PathUtils.getRootDir(), mLanguage);
                 } catch (IOException e) {
                     e.printStackTrace();
                     Log.e("lpf","----copy error:"+e.getMessage());
@@ -113,9 +113,9 @@ public class MSIDCardIdentificationActivity extends AppCompatActivity {
 
     public void recognition(View view) {
         // 识别Bitmap中的图片
-        mBaseApi.setImage(mResultImage);
-        mTvCardNumberView.setText(mBaseApi.getUTF8Text());
-        mBaseApi.clear();
+        mTessBaseAPI.setImage(mResultImage);
+        mTvCardNumberView.setText(mTessBaseAPI.getUTF8Text());
+        mTessBaseAPI.clear();
     }
 
     private void getResult(Uri uri) {
@@ -185,8 +185,8 @@ public class MSIDCardIdentificationActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mBaseApi !=null){
-            mBaseApi.end();
+        if (mTessBaseAPI !=null){
+            mTessBaseAPI.end();
         }
         if (mSubscribe!=null){
             mSubscribe.dispose();

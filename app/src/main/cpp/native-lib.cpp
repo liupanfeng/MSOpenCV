@@ -4,11 +4,10 @@
 #include <android/bitmap.h>
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
+/*输出日志*/
 #include <android/log.h>
 
-
 #define LOG_TAG "native"
-
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
 
 
@@ -61,7 +60,6 @@ jobject createBitmap(JNIEnv *env, Mat srcData, jobject config) {
                                                   config);
     /*将mat 数据传给Bitmap*/
     Java_org_opencv_android_Utils_nMatToBitmap(env, 0, (jlong) &srcData, jBmpObj);
-//    mat2Bitmap(env, srcData, jBmpObj);
     return jBmpObj;
 }
 
@@ -77,7 +75,9 @@ Java_com_meishe_msopencv_MainActivity_stringFromJNI(
     std::string hello = "Hello from C++";
     return env->NewStringUTF(hello.c_str());
 }
-
+/**
+ * 获取图片身份证号核心区域
+ */
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_meishe_msopencv_ImageProcess_getIdNumber(JNIEnv *env, jclass clazz, jobject src,
@@ -85,27 +85,27 @@ Java_com_meishe_msopencv_ImageProcess_getIdNumber(JNIEnv *env, jclass clazz, job
     Mat src_img;
     Mat dst_img;
     //imshow("src_", src_img);
-    //讲bitmap转换为Mat型格式数据
+    /*将bitmap转换为Mat型格式数据*/
     Java_org_opencv_android_Utils_nBitmapToMat2(env, clazz, src, (jlong) &src_img, 0);
 
     Mat dst;
-    //无损压缩//640*400
+    /*无损压缩 640*400*/
     resize(src_img, src_img,FIX_IDCARD_SIZE);
     //imshow("dst", src_img);
-    //灰度化
+    /*灰度化*/
     cvtColor(src_img, dst, COLOR_BGR2GRAY);
     //imshow("gray", dst);
 
-    //二值化
-    threshold(dst, dst, 100, 255, CV_THRESH_BINARY);
+    /*二值化*/
+    threshold(dst, dst, 150, 255, CV_THRESH_BINARY);
     //imshow("threshold", dst);
 
-    //加水膨胀，发酵
+    /*膨胀*/
     Mat erodeElement = getStructuringElement(MORPH_RECT, Size(20, 10));
     erode(dst, dst, erodeElement);
     //imshow("erode", dst);
 
-    //轮廓检测 // arraylist
+    /*轮廓检测 arraylist*/
     vector< vector<Point> > contours;
     vector<Rect> rects;
 
@@ -128,8 +128,7 @@ Java_com_meishe_msopencv_ImageProcess_getIdNumber(JNIEnv *env, jclass clazz, job
     if (rects.size() == 1) {
         Rect rect = rects.at(0);
         dst_img = src_img(rect);
-    }
-    else {
+    }else {
         int lowPoint = 0;
         Rect finalRect;
         for (int i = 0; i < rects.size(); i++)
@@ -146,9 +145,10 @@ Java_com_meishe_msopencv_ImageProcess_getIdNumber(JNIEnv *env, jclass clazz, job
         dst_img = src_img(finalRect);
     }
 
+    /*身份证核心区域生成bitmap*/
     jobject  bitmap = createBitmap(env,dst_img,config);
 
-    end:
+
     src_img.release();
     dst_img.release();
     dst.release();

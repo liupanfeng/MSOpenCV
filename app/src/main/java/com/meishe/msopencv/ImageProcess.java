@@ -14,5 +14,11 @@ public class ImageProcess {
         System.loadLibrary("msopencv");
     }
 
+    /**
+     * 获取图片号码 核心区域
+     * @param src
+     * @param config
+     * @return
+     */
     public static native Bitmap getIdNumber(Bitmap src, Bitmap.Config config);
 }
