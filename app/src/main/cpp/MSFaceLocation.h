@@ -1,0 +1,11 @@
+
+#ifndef MSOPENCV_MSFACELOCATION_H
+#define MSOPENCV_MSFACELOCATION_H
+
+
+class MSFaceLocation {
+
+};
+
+
+#endif //MSOPENCV_MSFACELOCATION_H

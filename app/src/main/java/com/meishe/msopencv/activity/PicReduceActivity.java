@@ -1,4 +1,4 @@
-package com.meishe.msopencv;
+package com.meishe.msopencv.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 
+import com.meishe.msopencv.ImageProcess;
 import com.meishe.msopencv.databinding.ActivityPicReduceBinding;
 
 public class PicReduceActivity extends AppCompatActivity {

@@ -2,10 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.meishe.msopencv">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.CAMERA" />
-
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -16,13 +12,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MSOpenCV">
         <activity
-            android:name=".PicReduceActivity"
+            android:name=".activity.CaptureActivity"
             android:exported="false" />
         <activity
-            android:name=".MSIDCardIdentificationActivity"
+            android:name=".activity.PicReduceActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MSIDCardIdentificationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -35,5 +34,9 @@
             android:name="ScopedStorage"
             android:value="true" />
     </application>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
 </manifest>

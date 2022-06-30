@@ -1,4 +1,4 @@
-package com.meishe.msopencv;
+package com.meishe.msopencv.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -17,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
+import com.meishe.msopencv.ImageProcess;
+import com.meishe.msopencv.R;
 import com.meishe.msopencv.utils.PathUtils;
 
 import java.io.File;

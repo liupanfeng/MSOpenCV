@@ -1,4 +1,4 @@
-package com.meishe.msopencv;
+package com.meishe.msopencv.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -15,6 +15,9 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    static {
+        System.loadLibrary("msopencv");
+    }
 
     private ActivityMainBinding mBinding;
 
@@ -44,6 +47,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 startActivity(new Intent(MainActivity.this
                         ,PicReduceActivity.class));
+            }
+        });
+
+        mBinding.btnFace.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this
+                        ,CaptureActivity.class));
             }
         });
     }

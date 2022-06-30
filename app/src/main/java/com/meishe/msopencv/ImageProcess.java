@@ -10,9 +10,6 @@ import android.graphics.Bitmap;
  */
 public class ImageProcess {
 
-    static {
-        System.loadLibrary("msopencv");
-    }
 
     /**
      * 获取图片号码 核心区域

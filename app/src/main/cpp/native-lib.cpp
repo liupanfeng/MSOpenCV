@@ -217,3 +217,40 @@ Java_com_meishe_msopencv_ImageProcess_getTwoBitmap(JNIEnv *env, jclass clazz, js
     return jBmpObj;
 
 }
+
+
+
+extern "C"
+JNIEXPORT jlong JNICALL
+Java_com_meishe_msopencv_MSFaceLocation_nativeCreateObject(JNIEnv *env, jobject thiz,
+                                                           jstring model) {
+
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_meishe_msopencv_MSFaceLocation_nativeSetSurface(JNIEnv *env, jobject thiz,
+                                                         jlong m_native_obj, jobject surface) {
+    // TODO: implement nativeSetSurface()
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_meishe_msopencv_MSFaceLocation_nativeRelease(JNIEnv *env, jclass clazz, jlong thiz) {
+    // TODO: implement release()
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_meishe_msopencv_MSFaceLocation_nativeStart(JNIEnv *env, jclass clazz, jlong thiz) {
+    // TODO: implement nativeStart()
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_meishe_msopencv_MSFaceLocation_nativeStop(JNIEnv *env, jclass clazz, jlong thiz) {
+    // TODO: implement nativeStop()
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_meishe_msopencv_MSFaceLocation_nativeDetect(JNIEnv *env, jclass clazz, jlong thiz,
+                                                     jbyteArray input_image, jint width,
+                                                     jint height, jint rotation_degrees) {
+    // TODO: implement nativeDetect()
+}
