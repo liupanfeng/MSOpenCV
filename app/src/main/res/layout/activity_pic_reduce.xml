@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".PicReduceActivity">
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        >
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="灰度化"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/btn_gray"
+            />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="二值化"
+            android:layout_marginLeft="10dp"
+            android:layout_gravity="center"
+            android:id="@+id/btn_two"
+            />
+
+    </LinearLayout>
+
+
+
+    <ImageView
+        android:id="@+id/iv_old"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"/>
+
+    <ImageView
+        android:id="@+id/iv_new"
+        android:layout_width="match_parent"
+        android:layout_marginTop="20dp"
+        android:layout_height="200dp"/>
+
+</LinearLayout>

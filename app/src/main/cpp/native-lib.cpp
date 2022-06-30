@@ -156,3 +156,64 @@ Java_com_meishe_msopencv_ImageProcess_getIdNumber(JNIEnv *env, jclass clazz, job
     return  bitmap;
 
 }
+
+/**
+ * 返回灰度图
+ */
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_meishe_msopencv_ImageProcess_getGrayBitmap(JNIEnv *env, jclass clazz, jstring pic_path, jobject config) {
+     const char* path=env->GetStringUTFChars(pic_path,JNI_OK);
+
+     Mat src= imread(path);
+     Mat des;
+     cvtColor(src,des,COLOR_BGR2GRAY);
+
+    int imgWidth = des.cols;
+    int imgHeight = des.rows;
+
+    /*反射拿到Bitmap*/
+    jclass bmpCls = env->FindClass("android/graphics/Bitmap");
+    jmethodID createBitmapMid = env->GetStaticMethodID(bmpCls, "createBitmap",
+                                                       "(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;");
+    /*执行静态方法 得到Bitmap对象*/
+    jobject jBmpObj = env->CallStaticObjectMethod(bmpCls, createBitmapMid, imgWidth, imgHeight,
+                                                  config);
+    /*将mat 数据传给Bitmap*/
+    Java_org_opencv_android_Utils_nMatToBitmap(env, 0, (jlong) &des, jBmpObj);
+
+    env->ReleaseStringUTFChars(pic_path,path);
+    return jBmpObj;
+
+}
+/**
+ * 二值化
+ */
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_meishe_msopencv_ImageProcess_getTwoBitmap(JNIEnv *env, jclass clazz, jstring pic_path,
+                                                   jobject config) {
+    const char* path=env->GetStringUTFChars(pic_path,JNI_OK);
+    Mat src= imread(path);
+    Mat des;
+    cvtColor(src,des,COLOR_BGR2GRAY);
+
+    int imgWidth = des.cols;
+    int imgHeight = des.rows;
+
+    threshold(des,des,150,250,CV_THRESH_BINARY);
+
+    /*反射拿到Bitmap*/
+    jclass bmpCls = env->FindClass("android/graphics/Bitmap");
+    jmethodID createBitmapMid = env->GetStaticMethodID(bmpCls, "createBitmap",
+                                                       "(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;");
+    /*执行静态方法 得到Bitmap对象*/
+    jobject jBmpObj = env->CallStaticObjectMethod(bmpCls, createBitmapMid, imgWidth, imgHeight,
+                                                  config);
+    /*将mat 数据传给Bitmap*/
+    Java_org_opencv_android_Utils_nMatToBitmap(env, 0, (jlong) &des, jBmpObj);
+
+    env->ReleaseStringUTFChars(pic_path,path);
+    return jBmpObj;
+
+}

@@ -38,6 +38,14 @@ public class MainActivity extends AppCompatActivity {
                         ,MSIDCardIdentificationActivity.class));
             }
         });
+
+        mBinding.btnPic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this
+                        ,PicReduceActivity.class));
+            }
+        });
     }
 
 
