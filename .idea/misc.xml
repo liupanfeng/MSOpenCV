@@ -9,6 +9,8 @@
       <map>
         <entry key="..\:/workspace/study/ndk/MSOpenCV/app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="..\:/workspace/study/ndk/MSOpenCV/app/src/main/res/layout/activity_msidcard_identification.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_pic_reduce.xml" value="0.17760416666666667" />
       </map>
     </option>
   </component>

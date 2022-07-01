@@ -6,6 +6,7 @@
 #include <android/native_window_jni.h>
 /*输出日志*/
 #include <android/log.h>
+#include "MSFaceLocation.h"
 
 #define LOG_TAG "native"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
@@ -16,10 +17,11 @@
 #define  FIX_IDCARD_SIZE Size(DEFAULT_CARD_WIDTH,DEFAULT_CARD_HEIGHT)
 #define FIX_TEMPLATE_SIZE  Size(153, 28)
 
-extern "C" {
 
+extern "C" {
 using namespace cv;
 using namespace std;
+
 /**
  * 工具方法 bitmap 转 mat2
  * @param env
@@ -67,14 +69,6 @@ jobject createBitmap(JNIEnv *env, Mat srcData, jobject config) {
 }
 
 
-
-extern "C" JNIEXPORT jstring JNICALL
-Java_com_meishe_msopencv_MainActivity_stringFromJNI(
-        JNIEnv *env,
-        jobject /* this */) {
-    std::string hello = "Hello from C++";
-    return env->NewStringUTF(hello.c_str());
-}
 /**
  * 获取图片身份证号核心区域
  */
@@ -219,38 +213,96 @@ Java_com_meishe_msopencv_ImageProcess_getTwoBitmap(JNIEnv *env, jclass clazz, js
 }
 
 
-
 extern "C"
 JNIEXPORT jlong JNICALL
 Java_com_meishe_msopencv_MSFaceLocation_nativeCreateObject(JNIEnv *env, jobject thiz,
                                                            jstring model) {
+    const char* _model=env->GetStringUTFChars(model,JNI_OK);
+    MSFaceLocation *msFaceLocation=new MSFaceLocation(_model);
+    env->ReleaseStringUTFChars(model,_model);
+    return reinterpret_cast<jlong>(msFaceLocation);
 
 }
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_meishe_msopencv_MSFaceLocation_nativeSetSurface(JNIEnv *env, jobject thiz,
                                                          jlong m_native_obj, jobject surface) {
-    // TODO: implement nativeSetSurface()
+    if (thiz!=0){
+        MSFaceLocation *msFaceLocation= reinterpret_cast<MSFaceLocation *>(thiz);
+        if (!surface){
+            msFaceLocation->setANativeWindow(nullptr);
+            return;
+        }
+
+        msFaceLocation->setANativeWindow(ANativeWindow_fromSurface(env,surface));
+    }
 }
+
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_meishe_msopencv_MSFaceLocation_nativeRelease(JNIEnv *env, jclass clazz, jlong thiz) {
-    // TODO: implement release()
+    if (thiz!=0) {
+        MSFaceLocation *msFaceLocation = reinterpret_cast<MSFaceLocation *>(thiz);
+        msFaceLocation->tracker->stop();
+        delete msFaceLocation;
+    }
 }
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_meishe_msopencv_MSFaceLocation_nativeStart(JNIEnv *env, jclass clazz, jlong thiz) {
-    // TODO: implement nativeStart()
+    if (thiz!=0) {
+        MSFaceLocation *msFaceLocation = reinterpret_cast<MSFaceLocation *>(thiz);
+        msFaceLocation->start();
+    }
 }
+
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_meishe_msopencv_MSFaceLocation_nativeStop(JNIEnv *env, jclass clazz, jlong thiz) {
-    // TODO: implement nativeStop()
+    if (thiz!=0) {
+        MSFaceLocation *msFaceLocation = reinterpret_cast<MSFaceLocation *>(thiz);
+        msFaceLocation->stop();
+    }
 }
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_meishe_msopencv_MSFaceLocation_nativeDetect(JNIEnv *env, jclass clazz, jlong thiz,
                                                      jbyteArray input_image, jint width,
                                                      jint height, jint rotation_degrees) {
-    // TODO: implement nativeDetect()
+    if (thiz == 0) {
+        return;
+    }
+
+    MSFaceLocation *msFaceLocation = reinterpret_cast<MSFaceLocation *>(thiz);
+    jbyte * _input_image=env->GetByteArrayElements(input_image,JNI_OK);
+
+    /*cameraX 传递过来的数据是i420*/
+    Mat src(height*3/2,width,CV_8UC1,_input_image);
+    /*yuv420 转 rgba i420*/
+    cvtColor(src,src,CV_YUV2RGBA_I420);
+    if (rotation_degrees==90){
+        /*正向*/
+        rotate(src,src,ROTATE_90_CLOCKWISE);
+    }else if (rotation_degrees==270){
+        /*反向*/
+        rotate(src,src,ROTATE_90_COUNTERCLOCKWISE);
+    }
+    /*镜像选装*/
+//    flip(src,src,1);
+    Mat gray;
+    cvtColor(src,gray,CV_BGR2GRAY);
+    equalizeHist(gray, gray);
+    msFaceLocation->tracker->process(gray);
+    std::vector<Rect> faces;
+    msFaceLocation->tracker->getObjects(faces);
+    for (Rect face:faces) {
+        rectangle(src,face,Scalar(255,0,0));
+    }
+    msFaceLocation->draw(src);
+
+    /*Mat 对象使用完了 必须要释放 */
+    src.release();
+    gray.release();
+    /*JNI 释放*/
+    env->ReleaseByteArrayElements(input_image,_input_image,JNI_OK);
 }
