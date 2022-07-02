@@ -17,9 +17,9 @@ void renderCallback(Mat img){
         ANativeWindow_setBuffersGeometry(window, img.cols, img.rows,
                                          WINDOW_FORMAT_RGBA_8888);
         ANativeWindow_Buffer buffer;
-        if (ANativeWindow_lock(window, &buffer, 0)) {
+        if (ANativeWindow_lock(window, &buffer, nullptr)) {
             ANativeWindow_release(window);
-            window = 0;
+            window = nullptr;
             break;
         }
         uint8_t *dstData = static_cast<uint8_t *>(buffer.bits);
@@ -30,7 +30,7 @@ void renderCallback(Mat img){
             memcpy(dstData + i * dstlineSize, srcData + i * srclineSize, srclineSize);
         }
         ANativeWindow_unlockAndPost(window);
-    } while (0);
+    } while (false);
 
     pthread_mutex_unlock(&mutex);
 }
@@ -58,7 +58,7 @@ Java_com_meishe_msopencv_MSFaceLocation_nativeSetSurface(JNIEnv *env, jobject th
         ANativeWindow_release(window);
         window = nullptr;
     }
-    // 创建新的窗口用于视频显示
+    /*创建新的窗口用于视频显示*/
     window = ANativeWindow_fromSurface(env, surface);
     pthread_mutex_unlock(&mutex);
 }
