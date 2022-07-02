@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MSOpenCV">
         <activity
+            android:name=".activity.CameraXPreViewActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.CaptureActivity"
             android:exported="false" />
         <activity
@@ -21,7 +24,7 @@
             android:name=".activity.MSIDCardIdentificationActivity"
             android:exported="false" />
         <activity
-            android:name=".activity.MainActivity"
+            android:name=".activity.LaunchActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,9 +37,10 @@
             android:name="ScopedStorage"
             android:value="true" />
     </application>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
 </manifest>

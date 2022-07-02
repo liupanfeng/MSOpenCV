@@ -3,8 +3,11 @@ package com.meishe.msopencv.utils;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
+import android.util.Log;
 
 import androidx.camera.core.ImageProxy;
+
+import com.meishe.msopencv.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -72,8 +75,8 @@ public class Utils {
     }
 
     public static String copyAsset2Dir(Context context, String name) {
-        File cascadeDir = context.getDir("cascade", Context.MODE_PRIVATE);
-        File cascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
+        File cascadeFile=new File( PathUtils.getModelDir()+File.separator+name);
+        Log.d("lpf","cascadeFile="+cascadeFile.getAbsolutePath());
         if (!cascadeFile.exists()) {
             InputStream is = null;
             FileOutputStream fos = null;
@@ -107,4 +110,22 @@ public class Utils {
         }
         return cascadeFile.getAbsolutePath();
     }
+
+
+
+    public static File getOutputFile(Context context) {
+        Context appContext = context.getApplicationContext();
+        File[] mediaDirs = context.getExternalMediaDirs();
+        if (mediaDirs != null && mediaDirs.length > 0 && mediaDirs[0] != null) {
+            File appMediaDir = new File(mediaDirs[0], appContext.getResources().getString(R.string.app_name));
+            appMediaDir.mkdirs();
+            return appMediaDir;
+        }
+        return appContext.getFilesDir();
+    }
+
+    public static File createPhotoFile(File outputFile) {
+        return new File(outputFile, String.format("%s%s", System.currentTimeMillis(), ".png"));
+    }
+
 }

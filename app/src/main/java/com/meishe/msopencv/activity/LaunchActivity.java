@@ -9,23 +9,23 @@ import android.view.View;
 import com.hjq.permissions.OnPermissionCallback;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
-import com.meishe.msopencv.databinding.ActivityMainBinding;
+import com.meishe.msopencv.databinding.ActivityLaunchBinding;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class LaunchActivity extends AppCompatActivity {
 
     static {
         System.loadLibrary("msopencv");
     }
 
-    private ActivityMainBinding mBinding;
+    private ActivityLaunchBinding mBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mBinding = ActivityMainBinding.inflate(getLayoutInflater());
+        mBinding = ActivityLaunchBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
 
 
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         mBinding.btnIdCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this
+                startActivity(new Intent(LaunchActivity.this
                         ,MSIDCardIdentificationActivity.class));
             }
         });
@@ -45,15 +45,23 @@ public class MainActivity extends AppCompatActivity {
         mBinding.btnPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this
+                startActivity(new Intent(LaunchActivity.this
                         ,PicReduceActivity.class));
             }
         });
 
+
+        mBinding.btnCameraX.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(LaunchActivity.this
+                        , CameraXPreViewActivity.class));
+            }
+        });
         mBinding.btnFace.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this
+                startActivity(new Intent(LaunchActivity.this
                         ,CaptureActivity.class));
             }
         });
@@ -67,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         XXPermissions.with(this).permission(Permission.READ_EXTERNAL_STORAGE)
                 .permission(Permission.WRITE_EXTERNAL_STORAGE)
                 .permission(Permission.CAMERA)
+                .permission(Permission.RECORD_AUDIO)
                 .request(new OnPermissionCallback() {
                     @Override
                     public void onGranted(List<String> permissions, boolean all) {

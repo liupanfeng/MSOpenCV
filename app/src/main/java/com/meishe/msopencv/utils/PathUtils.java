@@ -22,7 +22,10 @@ public class PathUtils {
     private static String SDK_FILE_ROOT_DIRECTORY = "MSOpenCV" + File.separator;
 
     private static String TRAIN_DIRECTORY = SDK_FILE_ROOT_DIRECTORY + "traineddata";
-    private static String TESS_DIRECTORY = SDK_FILE_ROOT_DIRECTORY + "tessdata";
+    /**
+     * 模型存放路径
+     */
+    private static String MODEL_DIRECTORY = SDK_FILE_ROOT_DIRECTORY + "model";
 
     /**
      * 删除文件
@@ -87,8 +90,8 @@ public class PathUtils {
     public static String getTrainDir() {
         return getFolderDirPath(TRAIN_DIRECTORY);
     }
-    public static String getTessDir() {
-        return getFolderDirPath(TESS_DIRECTORY);
+    public static String getModelDir() {
+        return getFolderDirPath(MODEL_DIRECTORY);
     }
 
     public static String getRootDir() {

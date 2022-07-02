@@ -6,15 +6,12 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc/types_c.h>
 #include <pthread.h>
-
+#include "log_util.h"
 using namespace cv;
 
+///*函数指针声明定义*/
+//typedef void(*RenderCallback)(Mat,long);
 
-#define A_NATIVE_WINDOW_RELEASE(window)   \
-if (window) { \
-            ANativeWindow_release(window); \
-            window = 0; \
-      }
 
 /**
  * 人脸跟随适配器
@@ -54,25 +51,13 @@ public:
      * 人脸追踪
      */
     Ptr<DetectionBasedTracker> tracker;
-    /**
-     * 互斥锁
-     */
-    pthread_mutex_t mutex;
-    /**
-     * 画面渲染
-     */
-    ANativeWindow *window = 0;
 
 public:
-    MSFaceLocation(const char* path);
+    MSFaceLocation(const char* model);
     ~MSFaceLocation();
 
 public:
-    void setANativeWindow(ANativeWindow *window);
-    void draw(Mat src);
-
     void start();
-
     void stop();
 };
 

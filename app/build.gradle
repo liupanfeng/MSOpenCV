@@ -75,8 +75,13 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
 
     //cameraX
-    implementation "androidx.camera:camera-core:1.0.0"
-    implementation "androidx.camera:camera-camera2:1.0.0"
-    implementation "androidx.camera:camera-lifecycle:1.0.0"
+    def camerax_version = '1.0.0-beta02'
+    implementation "androidx.camera:camera-core:$camerax_version"
+    implementation "androidx.camera:camera-camera2:$camerax_version"
+    implementation "androidx.camera:camera-lifecycle:$camerax_version"
+    implementation 'androidx.camera:camera-view:1.0.0-alpha09'
+
+
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
 
 }

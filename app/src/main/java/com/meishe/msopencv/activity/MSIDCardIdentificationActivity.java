@@ -62,7 +62,7 @@ public class MSIDCardIdentificationActivity extends AppCompatActivity {
                 try {
                     InputStream is = null;
                     is = getAssets().open(mLanguage + ".traineddata");
-                    File file = new File(PathUtils.getTessDir()+File.separator + mLanguage + ".traineddata");
+                    File file = new File(PathUtils.getModelDir()+File.separator + mLanguage + ".traineddata");
                     if (!file.exists()) {
                         file.getParentFile().mkdirs();
                         FileOutputStream fos = new FileOutputStream(file);
@@ -74,7 +74,7 @@ public class MSIDCardIdentificationActivity extends AppCompatActivity {
                         fos.close();
                     }
                     is.close();
-                    PathUtils.getTessDir();
+                    PathUtils.getModelDir();
                     mTessBaseAPI.init(PathUtils.getRootDir(), mLanguage);
                 } catch (IOException e) {
                     e.printStackTrace();

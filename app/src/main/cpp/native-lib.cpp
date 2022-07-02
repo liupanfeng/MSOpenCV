@@ -5,10 +5,10 @@
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
 /*输出日志*/
-#include <android/log.h>
 #include "MSFaceLocation.h"
+#include <android/log.h>
 
-#define LOG_TAG "native"
+#define LOG_TAG "lpf"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
 
 
@@ -84,7 +84,7 @@ Java_com_meishe_msopencv_ImageProcess_getIdNumber(JNIEnv *env, jclass clazz, job
 
     Mat dst;
     /*无损压缩 640*400*/
-    resize(src_img, src_img,FIX_IDCARD_SIZE);
+    resize(src_img, src_img, FIX_IDCARD_SIZE);
     //imshow("dst", src_img);
     /*灰度化*/
     cvtColor(src_img, dst, COLOR_BGR2GRAY);
@@ -100,18 +100,17 @@ Java_com_meishe_msopencv_ImageProcess_getIdNumber(JNIEnv *env, jclass clazz, job
     //imshow("erode", dst);
 
     /*轮廓检测 arraylist*/
-    vector< vector<Point> > contours;
+    vector<vector<Point> > contours;
     vector<Rect> rects;
 
     findContours(dst, contours, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0));
 
-    for (int i = 0; i < contours.size(); i++)
-    {
+    for (int i = 0; i < contours.size(); i++) {
         Rect rect = boundingRect(contours.at(i));
         //rectangle(dst, rect, Scalar(0, 0, 255));  // 在dst 图片上显示 rect 矩形
         if (rect.width > rect.height * 9) {
             rects.push_back(rect);
-            rectangle(dst, rect, Scalar(0,255,255));
+            rectangle(dst, rect, Scalar(0, 255, 255));
             dst_img = src_img(rect);
         }
 
@@ -122,11 +121,10 @@ Java_com_meishe_msopencv_ImageProcess_getIdNumber(JNIEnv *env, jclass clazz, job
     if (rects.size() == 1) {
         Rect rect = rects.at(0);
         dst_img = src_img(rect);
-    }else {
+    } else {
         int lowPoint = 0;
         Rect finalRect;
-        for (int i = 0; i < rects.size(); i++)
-        {
+        for (int i = 0; i < rects.size(); i++) {
             Rect rect = rects.at(i);
             Point p = rect.tl();
             if (rect.tl().y > lowPoint) {
@@ -140,14 +138,14 @@ Java_com_meishe_msopencv_ImageProcess_getIdNumber(JNIEnv *env, jclass clazz, job
     }
 
     /*身份证核心区域生成bitmap*/
-    jobject  bitmap = createBitmap(env,dst_img,config);
+    jobject bitmap = createBitmap(env, dst_img, config);
 
 
     src_img.release();
     dst_img.release();
     dst.release();
 
-    return  bitmap;
+    return bitmap;
 
 }
 
@@ -156,12 +154,13 @@ Java_com_meishe_msopencv_ImageProcess_getIdNumber(JNIEnv *env, jclass clazz, job
  */
 extern "C"
 JNIEXPORT jobject JNICALL
-Java_com_meishe_msopencv_ImageProcess_getGrayBitmap(JNIEnv *env, jclass clazz, jstring pic_path, jobject config) {
-     const char* path=env->GetStringUTFChars(pic_path,JNI_OK);
+Java_com_meishe_msopencv_ImageProcess_getGrayBitmap(JNIEnv *env, jclass clazz, jstring pic_path,
+                                                    jobject config) {
+    const char *path = env->GetStringUTFChars(pic_path, JNI_OK);
 
-     Mat src= imread(path);
-     Mat des;
-     cvtColor(src,des,COLOR_BGR2GRAY);
+    Mat src = imread(path);
+    Mat des;
+    cvtColor(src, des, COLOR_BGR2GRAY);
 
     int imgWidth = des.cols;
     int imgHeight = des.rows;
@@ -176,7 +175,7 @@ Java_com_meishe_msopencv_ImageProcess_getGrayBitmap(JNIEnv *env, jclass clazz, j
     /*将mat 数据传给Bitmap*/
     Java_org_opencv_android_Utils_nMatToBitmap(env, 0, (jlong) &des, jBmpObj);
 
-    env->ReleaseStringUTFChars(pic_path,path);
+    env->ReleaseStringUTFChars(pic_path, path);
     return jBmpObj;
 
 }
@@ -187,15 +186,15 @@ extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_meishe_msopencv_ImageProcess_getTwoBitmap(JNIEnv *env, jclass clazz, jstring pic_path,
                                                    jobject config) {
-    const char* path=env->GetStringUTFChars(pic_path,JNI_OK);
-    Mat src= imread(path);
+    const char *path = env->GetStringUTFChars(pic_path, JNI_OK);
+    Mat src = imread(path);
     Mat des;
-    cvtColor(src,des,COLOR_BGR2GRAY);
+    cvtColor(src, des, COLOR_BGR2GRAY);
 
     int imgWidth = des.cols;
     int imgHeight = des.rows;
 
-    threshold(des,des,150,250,CV_THRESH_BINARY);
+    threshold(des, des, 150, 250, CV_THRESH_BINARY);
 
     /*反射拿到Bitmap*/
     jclass bmpCls = env->FindClass("android/graphics/Bitmap");
@@ -207,102 +206,103 @@ Java_com_meishe_msopencv_ImageProcess_getTwoBitmap(JNIEnv *env, jclass clazz, js
     /*将mat 数据传给Bitmap*/
     Java_org_opencv_android_Utils_nMatToBitmap(env, 0, (jlong) &des, jBmpObj);
 
-    env->ReleaseStringUTFChars(pic_path,path);
+    env->ReleaseStringUTFChars(pic_path, path);
     return jBmpObj;
 
 }
 
 
-extern "C"
-JNIEXPORT jlong JNICALL
-Java_com_meishe_msopencv_MSFaceLocation_nativeCreateObject(JNIEnv *env, jobject thiz,
-                                                           jstring model) {
-    const char* _model=env->GetStringUTFChars(model,JNI_OK);
-    MSFaceLocation *msFaceLocation=new MSFaceLocation(_model);
-    env->ReleaseStringUTFChars(model,_model);
-    return reinterpret_cast<jlong>(msFaceLocation);
-
-}
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_meishe_msopencv_MSFaceLocation_nativeSetSurface(JNIEnv *env, jobject thiz,
-                                                         jlong m_native_obj, jobject surface) {
-    if (thiz!=0){
-        MSFaceLocation *msFaceLocation= reinterpret_cast<MSFaceLocation *>(thiz);
-        if (!surface){
-            msFaceLocation->setANativeWindow(nullptr);
-            return;
-        }
-
-        msFaceLocation->setANativeWindow(ANativeWindow_fromSurface(env,surface));
-    }
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_meishe_msopencv_MSFaceLocation_nativeRelease(JNIEnv *env, jclass clazz, jlong thiz) {
-    if (thiz!=0) {
-        MSFaceLocation *msFaceLocation = reinterpret_cast<MSFaceLocation *>(thiz);
-        msFaceLocation->tracker->stop();
-        delete msFaceLocation;
-    }
-}
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_meishe_msopencv_MSFaceLocation_nativeStart(JNIEnv *env, jclass clazz, jlong thiz) {
-    if (thiz!=0) {
-        MSFaceLocation *msFaceLocation = reinterpret_cast<MSFaceLocation *>(thiz);
-        msFaceLocation->start();
-    }
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_meishe_msopencv_MSFaceLocation_nativeStop(JNIEnv *env, jclass clazz, jlong thiz) {
-    if (thiz!=0) {
-        MSFaceLocation *msFaceLocation = reinterpret_cast<MSFaceLocation *>(thiz);
-        msFaceLocation->stop();
-    }
-}
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_meishe_msopencv_MSFaceLocation_nativeDetect(JNIEnv *env, jclass clazz, jlong thiz,
-                                                     jbyteArray input_image, jint width,
-                                                     jint height, jint rotation_degrees) {
-    if (thiz == 0) {
-        return;
-    }
-
-    MSFaceLocation *msFaceLocation = reinterpret_cast<MSFaceLocation *>(thiz);
-    jbyte * _input_image=env->GetByteArrayElements(input_image,JNI_OK);
-
-    /*cameraX 传递过来的数据是i420*/
-    Mat src(height*3/2,width,CV_8UC1,_input_image);
-    /*yuv420 转 rgba i420*/
-    cvtColor(src,src,CV_YUV2RGBA_I420);
-    if (rotation_degrees==90){
-        /*正向*/
-        rotate(src,src,ROTATE_90_CLOCKWISE);
-    }else if (rotation_degrees==270){
-        /*反向*/
-        rotate(src,src,ROTATE_90_COUNTERCLOCKWISE);
-    }
-    /*镜像选装*/
-//    flip(src,src,1);
-    Mat gray;
-    cvtColor(src,gray,CV_BGR2GRAY);
-    equalizeHist(gray, gray);
-    msFaceLocation->tracker->process(gray);
-    std::vector<Rect> faces;
-    msFaceLocation->tracker->getObjects(faces);
-    for (Rect face:faces) {
-        rectangle(src,face,Scalar(255,0,0));
-    }
-    msFaceLocation->draw(src);
-
-    /*Mat 对象使用完了 必须要释放 */
-    src.release();
-    gray.release();
-    /*JNI 释放*/
-    env->ReleaseByteArrayElements(input_image,_input_image,JNI_OK);
-}
+//extern "C"
+//JNIEXPORT jlong JNICALL
+//Java_com_meishe_msopencv_MSFaceLocation_nativeCreateObject(JNIEnv *env, jobject thiz,
+//                                                           jstring model) {
+//    const char *_model = env->GetStringUTFChars(model, JNI_OK);
+//    MSFaceLocation *msFaceLocation = new MSFaceLocation(_model);
+//    env->ReleaseStringUTFChars(model, _model);
+//    LOGI("nativeCreateObject success");
+//    return reinterpret_cast<jlong>(msFaceLocation);
+//
+//}
+//extern "C"
+//JNIEXPORT void JNICALL
+//Java_com_meishe_msopencv_MSFaceLocation_nativeSetSurface(JNIEnv *env, jobject thiz,
+//                                                         jlong m_native_obj, jobject surface) {
+//    if (thiz != 0) {
+//        MSFaceLocation *msFaceLocation = reinterpret_cast<MSFaceLocation *>(thiz);
+//        if (!surface) {
+//            msFaceLocation->setANativeWindow(nullptr);
+//            return;
+//        }
+//
+//        msFaceLocation->setANativeWindow(ANativeWindow_fromSurface(env, surface));
+//    }
+//}
+//
+//extern "C"
+//JNIEXPORT void JNICALL
+//Java_com_meishe_msopencv_MSFaceLocation_nativeRelease(JNIEnv *env, jclass clazz, jlong thiz) {
+//    if (thiz != 0) {
+//        MSFaceLocation *msFaceLocation = reinterpret_cast<MSFaceLocation *>(thiz);
+//        msFaceLocation->tracker->stop();
+//        delete msFaceLocation;
+//    }
+//}
+//extern "C"
+//JNIEXPORT void JNICALL
+//Java_com_meishe_msopencv_MSFaceLocation_nativeStart(JNIEnv *env, jclass clazz, jlong thiz) {
+//    if (thiz != 0) {
+//        MSFaceLocation *msFaceLocation = reinterpret_cast<MSFaceLocation *>(thiz);
+//        msFaceLocation->tracker->run();
+//    }
+//}
+//
+//extern "C"
+//JNIEXPORT void JNICALL
+//Java_com_meishe_msopencv_MSFaceLocation_nativeStop(JNIEnv *env, jclass clazz, jlong thiz) {
+//    if (thiz != 0) {
+//        MSFaceLocation *msFaceLocation = reinterpret_cast<MSFaceLocation *>(thiz);
+//        msFaceLocation->tracker->stop();
+//    }
+//}
+//extern "C"
+//JNIEXPORT void JNICALL
+//Java_com_meishe_msopencv_MSFaceLocation_nativeDetect(JNIEnv *env, jclass clazz, jlong thiz,
+//                                                     jbyteArray input_image, jint width,
+//                                                     jint height, jint rotation_degrees) {
+//    if (thiz == 0) {
+//        return;
+//    }
+//
+//    MSFaceLocation *msFaceLocation = reinterpret_cast<MSFaceLocation *>(thiz);
+//    jbyte *_input_image = env->GetByteArrayElements(input_image, JNI_OK);
+//    LOGI("with=%d,height=%d",width,height);
+//    /*cameraX 传递过来的数据是i420*/
+//    Mat src(height * 3 / 2, width, CV_8UC1, _input_image);
+//    /*yuv420 转 rgba i420*/
+//    cvtColor(src, src, CV_YUV2RGBA_I420);
+//    if (rotation_degrees == 90) {
+//        /*正向*/
+//        rotate(src, src, ROTATE_90_CLOCKWISE);
+//    } else if (rotation_degrees == 270) {
+//        /*反向*/
+//        rotate(src, src, ROTATE_90_COUNTERCLOCKWISE);
+//    }
+//    /*镜像选装*/
+////    flip(src,src,1);
+//    Mat gray;
+//    cvtColor(src, gray, CV_BGR2GRAY);
+//    equalizeHist(gray, gray);
+//    msFaceLocation->tracker->process(gray);
+//    std::vector<Rect> faces;
+//    msFaceLocation->tracker->getObjects(faces);
+//    for (Rect face:faces) {
+//        rectangle(src, face, Scalar(255, 0, 0));
+//    }
+//    msFaceLocation->draw(src);
+//
+//    /*Mat 对象使用完了 必须要释放 */
+//    src.release();
+//    gray.release();
+//    /*JNI 释放*/
+//    env->ReleaseByteArrayElements(input_image, _input_image, JNI_OK);
+//}
